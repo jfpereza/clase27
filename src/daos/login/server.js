@@ -5,8 +5,7 @@ import LocalStrategy from 'passport-local';
 import mongoose from "mongoose";
 import Users from './modelMongo.js';
 import routes from './routersConfigDB.js';
-
-
+import { fork } from "child_process";
 
 const app = express()
 app.use(express.urlencoded({ extended: true }))
@@ -80,15 +79,21 @@ app.get('/private', checkAuthentication, (req, res) => {
     res.send('<h1> 🚀 logueado.. 🚀 </h1>')
 })
 // ----------------ramdon------------------------------//
-app.post('/api/random', (req, res) => {
-    const cant = req.query.numero;
-    let numero = Math.random() * 100000000;
-    numero = Math.floor(numero + 1);
+// const generate = require('./random')
+app.get('/api/random', (req, res) => {
+    const cant = req.query.cant || 500000000
+    const computo = fork('./calcu.js')
+    computo.send({ cant })
+    computo.on('message', result => {
+        return res.send = (result) => {
+            res.render(`<h3>calculate ${result}</h3>`)
+        }
+    })
 
-    res.send(`<h3>calculate ${numero}</h3>`);
-    if (err) return console.log('error ramdon', err);
+
 })
 
+//----------------------------------------------------------//
 function connectDB(url, cb) {
     mongoose.connect(url,
         {
@@ -101,10 +106,30 @@ function connectDB(url, cb) {
         }
     )
 }
+// -----------------------mongoDB--------------------------//
 connectDB('mongodb://localhost:27017/CODERHOUSE', err => {
     if (err) return console.log('Error connecting DB', err)
-    app.listen(8081, () => {
+    app.listen(process.env.port || 8081, () => {
         console.log('Listening server...8081');
     })
 })
+
+
+
+
+
+
+// app.post('/api/random', (req, res) => {
+//     const cant = req.query.cant || 2000000000;
+//     const result = {}
+//     for (let i = 0; i < cant; i++) {
+//         let numero = Math.random() * 1000
+//         if (numero in result) result[numero]++
+//         else result[numero] = 1
+//     }
+//     res.send(`<h3>calculate ${result}</h3>`);
+
+//     if (err) return console.log('error ramdon', err);
+// })
+
 
