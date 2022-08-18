@@ -85,12 +85,8 @@ app.get('/api/random', (req, res) => {
     const computo = fork('./calcu.js')
     computo.send({ cant })
     computo.on('message', result => {
-        return res.send = (result) => {
-            res.render(`<h3>calculate ${result}</h3>`)
-        }
+        return res.send = (`<h3>calculate ${result}</h3>`)
     })
-
-
 })
 
 //----------------------------------------------------------//
